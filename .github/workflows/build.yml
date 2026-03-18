@@ -1,0 +1,42 @@
+# Запускаем ТОЛЬКО при создании/обновлении Pull Request в ветку main
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    # Запуск на Linux
+    runs-on: ubuntu-latest
+
+    # Docker-контейнер с OpenJDK 21
+    container:
+      image: eclipse-temurin:21-jdk
+
+    steps:
+      # 1. Клонируем репозиторий
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Настраиваем права на mvnw (если он есть)
+      - name: Make mvnw executable
+        run: |
+          if [ -f "./mvnw" ]; then
+            chmod +x ./mvnw
+          fi
+
+      # 3. Запускаем сборку
+      - name: Build with Maven
+        run: |
+          if [ -f "./mvnw" ]; then
+            ./mvnw clean package
+          else
+            mvn clean package
+          fi
+
+      # 4. Сохраняем артефакты
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-artifact
+          path: ./target/*.jar
