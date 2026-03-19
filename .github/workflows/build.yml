@@ -125,8 +125,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: zap-baseline-report
+          name: zap-baseline-report-${{ github.run_id }}
           path: report_html.html
+          overwrite: true
 
   dast-api:
     runs-on: ubuntu-latest
@@ -172,5 +173,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: zap-api-report
+          name: zap-api-report-${{ github.run_id }}
           path: report_html.html
+          overwrite: true
