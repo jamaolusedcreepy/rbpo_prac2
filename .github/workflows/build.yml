@@ -101,11 +101,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Prepare ZAP rules file
-        run: |
-          touch zap-rules.tsv
-          chmod 777 .
-
       - name: Start application
         run: java -jar ./target/*.jar &
 
@@ -113,20 +108,23 @@ jobs:
         run: sleep 30
 
       - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.9.0
-        with:
-          target: http://localhost:8080
-          rules_file_name: zap-rules.tsv
-          fail_action: false
-          allow_issue_writing: false
-          artifact_name: ''
+        run: |
+          chmod 777 .
+          touch zap-rules.tsv
+          docker run --network=host \
+            -v $(pwd):/zap/wrk/:rw \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t http://localhost:8080 \
+            -r zap-baseline-report.html \
+            -c zap-rules.tsv || true
 
       - name: Upload Baseline report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap-baseline-report
-          path: report_html.html
+          path: zap-baseline-report.html
 
   dast-api:
     runs-on: ubuntu-latest
@@ -147,11 +145,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Prepare ZAP rules file
-        run: |
-          touch zap-rules.tsv
-          chmod 777 .
-
       - name: Start application
         run: java -jar ./target/*.jar &
 
@@ -159,18 +152,21 @@ jobs:
         run: sleep 30
 
       - name: Run ZAP API Scan
-        uses: zaproxy/action-api-scan@v0.10.0
-        with:
-          target: http://localhost:8080/v3/api-docs
-          format: openapi
-          rules_file_name: zap-rules.tsv
-          fail_action: false
-          allow_issue_writing: false
-          artifact_name: ''
+        run: |
+          chmod 777 .
+          touch zap-rules.tsv
+          docker run --network=host \
+            -v $(pwd):/zap/wrk/:rw \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-api-scan.py \
+            -t http://localhost:8080/v3/api-docs \
+            -f openapi \
+            -r zap-api-report.html \
+            -c zap-rules.tsv || true
 
       - name: Upload API report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap-api-report
-          path: report_html.html
+          path: zap-api-report.html
