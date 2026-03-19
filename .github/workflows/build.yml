@@ -115,8 +115,8 @@ jobs:
         with:
           target: http://localhost:8080
           rules_file_name: zap-rules.tsv
-          report_html: zap-baseline-report.html
           fail_action: false
+          allow_issue_writing: false
 
       - name: Upload Baseline report
         uses: actions/upload-artifact@v4
@@ -159,8 +159,8 @@ jobs:
           target: http://localhost:8080/v3/api-docs
           format: openapi
           rules_file_name: zap-rules.tsv
-          report_html: zap-api-report.html
           fail_action: false
+          allow_issue_writing: false
 
       - name: Upload API scan report
         uses: actions/upload-artifact@v4
