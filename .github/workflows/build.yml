@@ -49,3 +49,33 @@ jobs:
         if: always()
         with:
           sarif_file: semgrep.sarif
+
+  sca:
+    runs-on: ubuntu-latest
+    needs: build
+    container:
+      image: eclipse-temurin:21-jdk
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make mvnw executable
+        run: |
+          if [ -f "./mvnw" ]; then
+            chmod +x ./mvnw
+          fi
+
+      - name: Run OWASP Dependency-Check
+        run: |
+          if [ -f "./mvnw" ]; then
+            ./mvnw dependency-check:check || true
+          else
+            mvn dependency-check:check || true
+          fi
+
+      - name: Upload SCA report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: target/dependency-check-report.html
