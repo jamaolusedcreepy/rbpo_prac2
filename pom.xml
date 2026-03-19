@@ -106,6 +106,7 @@
                 <configuration>
                     <format>HTML</format>
                     <suppressionFile>dependency-check-suppressions.xml</suppressionFile>
+                    <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                 </configuration>
             </plugin>
         </plugins>
